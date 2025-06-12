@@ -1,0 +1,25 @@
+Taski z todo zapisujemy do bazy danych - ms sql
+
+///////////////
+Struktura bazy danych:
+Tabela z 
+ public class Todo
+ {
+     public Guid Id { get; set; }
+     public string Title { get; set; }
+     public string Description { get; set; }
+     public bool IsDone { get; set; }
+ }
+ 
+ 
+ do tego ORM typu Entity Framework
+ 
+ baza ma się tworzyć tylko przy uruchomieniu, pod warunkiem jej braku. 
+ //////////////
+ 
+ 
+ 
+ Tworzymy taski do todolisty i zapisujemy je w bazie, po to by przy każdym uruchomieniu były dostepne stare taski. 
+ 
+ appsetting.json
+ 
