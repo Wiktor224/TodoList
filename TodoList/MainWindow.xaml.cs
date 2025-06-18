@@ -1,7 +1,6 @@
 ﻿using System.Collections.ObjectModel;
-
 using System.Windows;
-
+using TodoList.Data;
 using TodoList.Models;
 
 namespace TodoList
@@ -9,7 +8,7 @@ namespace TodoList
     public partial class MainWindow : Window
     {
         private readonly AppDbContext _context;
-        public ObservableCollection<Task> Tasks { get; set; }
+        public ObservableCollection<TaskItem> Tasks { get; set; }
 
         public MainWindow(AppDbContext context)
         {
@@ -20,7 +19,7 @@ namespace TodoList
 
         private void LoadTasks()
         {
-            Tasks = new ObservableCollection<Task>(_context.Tasks.ToList());
+            Tasks = new ObservableCollection<TaskItem>(_context.Tasks.ToList());
             TaskList.ItemsSource = Tasks;
         }
 
@@ -36,5 +35,44 @@ namespace TodoList
                 TaskInput.Clear();
             }
         }
+        private void EditTask_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is TaskItem task)
+            {
+                var result = MessageBox.Show(
+                    "Czy na pewno chcesz zapisać zmiany?",
+                    "Potwierdzenie edycji",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _context.Tasks.Update(task);
+                    _context.SaveChanges();
+                }
+            }
+        }
+
+
+        private void DeleteTask_Click(object sender, RoutedEventArgs e)
+        {
+            if ((sender as FrameworkElement)?.DataContext is TaskItem task)
+            {
+                var result = MessageBox.Show(
+                    "Czy na pewno chcesz usunąć to zadanie?",
+                    "Potwierdzenie usunięcia",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    _context.Tasks.Remove(task);
+                    _context.SaveChanges();
+                    Tasks.Remove(task);
+                }
+            }
+        }
+        
+
     }
 }

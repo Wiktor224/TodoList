@@ -2,9 +2,10 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using System.Windows;
+using TodoList.Data;
 
 namespace TodoList 
-namespace TaskItem
+
 {
     public partial class App : Application
     {
@@ -26,6 +27,8 @@ namespace TaskItem
             ConfigureServices(services);
 
             ServiceProvider = services.BuildServiceProvider();
+
+            ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
 
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
