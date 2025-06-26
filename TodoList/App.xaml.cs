@@ -1,11 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Diagnostics;
 using System.Windows;
+using TodoList.Configuration;
 using TodoList.Data;
+using TodoList.Interfaces.Services;
 
-namespace TodoList 
-
+namespace TodoList
 {
     public partial class App : Application
     {
@@ -13,9 +16,16 @@ namespace TodoList
 
         private IConfiguration _configuration;
 
+        public App()
+        {
+            // Konstruktor niepotrzebny, usuń jeśli niepotrzebne
+        }
+
         protected override void OnStartup(StartupEventArgs e)
         {
             base.OnStartup(e);
+
+            Application.Current.ShutdownMode = ShutdownMode.OnExplicitShutdown;
 
             var builder = new ConfigurationBuilder()
                 .SetBasePath(AppContext.BaseDirectory)
@@ -24,23 +34,35 @@ namespace TodoList
             _configuration = builder.Build();
 
             var services = new ServiceCollection();
-            ConfigureServices(services);
+            ConfigureService.ConfigureServices(services, _configuration);
 
             ServiceProvider = services.BuildServiceProvider();
 
             ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
 
-            var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
-            mainWindow.Show();
+            var loginWindow = new LoginWindow(
+                ServiceProvider.GetRequiredService<AppDbContext>(),
+                ServiceProvider.GetRequiredService<IUserService>());
+
+            bool? result = loginWindow.ShowDialog();
+            Debug.WriteLine($"ShowDialog result: {result}");
+
+            if (result == true)
+            {
+                var user = loginWindow.LoggedInUser;
+
+               
+                var mainWindow = new MainWindow(
+        ServiceProvider.GetRequiredService<AppDbContext>(),
+        user 
+    );
+                Application.Current.MainWindow = mainWindow;
+                mainWindow.Show();
+            }
+            else
+            {
+                Shutdown();
+            }
         }
-
-        private void ConfigureServices(IServiceCollection services)
-        {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseSqlServer(_configuration.GetConnectionString("DefaultConnection")));
-
-            services.AddSingleton<MainWindow>();
-        }
-
     }
 }

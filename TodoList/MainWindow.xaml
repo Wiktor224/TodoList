@@ -18,9 +18,11 @@
                         <Button Content="Zapisz" Click="EditTask_Click" Margin="5" />
                         <Button Content="Usuń" Click="DeleteTask_Click" Margin="5" />
                     </StackPanel>
+                    
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
     </DockPanel>
+    
 </Window>

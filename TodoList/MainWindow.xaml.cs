@@ -8,18 +8,20 @@ namespace TodoList
     public partial class MainWindow : Window
     {
         private readonly AppDbContext _context;
+        private readonly User _loggedInUser;
         public ObservableCollection<TaskItem> Tasks { get; set; }
 
-        public MainWindow(AppDbContext context)
+        public MainWindow(AppDbContext context, User loggedInUser)
         {
             InitializeComponent();
             _context = context;
+            _loggedInUser = loggedInUser;
             LoadTasks();
         }
 
         private void LoadTasks()
         {
-            Tasks = new ObservableCollection<TaskItem>(_context.Tasks.ToList());
+            Tasks = new ObservableCollection<TaskItem>(_context.Tasks.Where(w => w.UserId == _loggedInUser.Id).ToList());
             TaskList.ItemsSource = Tasks;
         }
 
@@ -28,7 +30,7 @@ namespace TodoList
             var title = TaskInput.Text.Trim();
             if (!string.IsNullOrEmpty(title))
             {
-                var newTask = new TaskItem { Title = title };
+                var newTask = new TaskItem { Title = title, UserId = _loggedInUser.Id };
                 _context.Tasks.Add(newTask);
                 _context.SaveChanges();
                 Tasks.Add(newTask);
@@ -66,6 +68,7 @@ namespace TodoList
 
                 if (result == MessageBoxResult.Yes)
                 {
+
                     _context.Tasks.Remove(task);
                     _context.SaveChanges();
                     Tasks.Remove(task);

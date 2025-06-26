@@ -4,6 +4,6 @@
     {
         User = 0,
         Admin = 1,
-        SuperAdmin = 666
+        SuperAdmin = 10
     }
 }
